@@ -1,10 +1,6 @@
 const path = require('path');
 
 module.exports = {
-	watch: true,
-	watchOptions: {
-		ignored: /node_modules/
-	},
 	entry: {
 		main: './src/js/script.js'
 	},
