@@ -19,6 +19,6 @@ jobs:
     before_script:
       - curl -LO --retry 3 https://raw.github.com/mernst/plume-lib/master/bin/trigger-travis.sh
     script:
-    - if [ ${TRAVIS_BRANCH} = "master" && ${TRAVIS_PULL_REQUEST} = "false" ]; then
+    - if [[ ($TRAVIS_BRANCH == master) && ($TRAVIS_PULL_REQUEST == false) ]] ; then
         sh trigger-travis.sh bombergame service-config ${TRAVIS_ACCESS_TOKEN};
       fi
