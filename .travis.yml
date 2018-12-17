@@ -1,0 +1,17 @@
+language: node_js
+node_js:
+  - "11.3.0"
+
+jobs:
+  include:
+  - stage: build image
+    services:
+    - docker
+    before_script:
+    - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+    script:
+    - docker build -t bombergame/frontend .
+    after_success:
+    - if [ ${TRAVIS_BRANCH} = "master" ]; then
+        docker push bombergame/frontend;
+      fi
