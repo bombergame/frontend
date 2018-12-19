@@ -24,6 +24,7 @@ export default class FormController {
      */
 	callbackSubmit (event) {
 		event.preventDefault();
+		console.log(this._validator.validate(), this._validator);
 		if (this._validator && !this._validator.validate()) {
 			return;
 		}
@@ -48,7 +49,7 @@ export default class FormController {
 
 		let data = Array.from(event.target.elements)
 			.reduce((acc, val) => {
-				if (val.value === ''){
+				if (val.value === '') {
 					return acc;
 				}
 				if (val.name !== 'title') {

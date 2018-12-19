@@ -155,17 +155,18 @@ export default class Bomb {
             for (let i = 0; i < this.radius; i++) { // взрываем область соответствующую длине радиуса
                 const expXPos =  this.xPos + vec.dx * i;
                 const expYPos =  this.yPos + vec.dy * i;
-                // console.log(this.gameField[expXPos][expYPos]);
-                if (!(this.gameField[expXPos][expYPos] instanceof SteelBrick)) {
-                    bombedWay.push( // позиция элемента попадающего под взрыв
-                        {
-                            xPos : expXPos,
-                            yPos : expYPos
-                        }
-                    )                
-                }
-                if ((this.gameField[expXPos][expYPos] instanceof SteelBrick) || (this.gameField[expXPos][expYPos] instanceof FragileBrick)) {
-                    break;
+                if ((expXPos >= 0 && expXPos < this.gameField.length) && (expYPos >= 0 && expYPos < this.gameField[0].length)) {
+                    if (!(this.gameField[expXPos][expYPos] instanceof SteelBrick)) {
+                        bombedWay.push( // позиция элемента попадающего под взрыв
+                            {
+                                xPos : expXPos,
+                                yPos : expYPos
+                            }
+                        )                
+                    } 
+                    if ((this.gameField[expXPos][expYPos] instanceof SteelBrick) || (this.gameField[expXPos][expYPos] instanceof FragileBrick)) {
+                        break;
+                    }
                 }
             }
             area.push(bombedWay);
@@ -201,7 +202,6 @@ export default class Bomb {
         if (currentAnimationTime < 1) {
             area.forEach( vec => {
                 vec.forEach( pos => {
-                    // console.log(pos)
                     this._ctx.drawImage(this._flameSpritesSrc[this._currentFrame], pos.xPos * this.size, pos.yPos * this.size, this.size, this.size);
                 })
             })

@@ -4,19 +4,28 @@ import Router from '../../modules/Router.js';
 import GameBus from '../GameBus.ts';
 import Field from '../components/field/field.ts';
 import Player from '../components/player/player.ts';
-import { matr } from '../GameConfig.js';
+import Controls from '../controls/Controls.js';
+import numberMatrixMapGenerator from '../utils/mapGenerate.ts';
 
 import * as sprites from '../SpriteImports.js';
 
-export default class SingleScene extends BaseScene {
+class SingleScene extends BaseScene {
 	constructor () {
-		super();
+		super(); // нужно оставить даже если в BaseScene нет констурктора, иначе this - undefined
 		this._field = null;
 		this._players = [];
+		this._registeredActions = false;
+		this._controls = new Controls('singleplayer'); // режим контролов влиет на тип отправки сообщения в Bus
+
+		Bus.on('single-user', this.updateUsers.bind(this));
+		Bus.on('single-setBomb', this.updateBombs.bind(this));
+		Bus.on('single-bomb-explosion', this.updateBombs.bind(this));
+		Bus.on('single-scene-start', this.startLoop.bind(this));
+		GameBus.on('single-player-death', this.updateGame.bind(this));
 	}
 
-	init (firstLayer, firstLayerContext, secondLayer, secondLayerContext) {
-		super.init(firstLayer, firstLayerContext, secondLayer, secondLayerContext);
+	init () {
+		this.getCanvasContext();
 
 		/*
         здесь важен порядок создания объектов Player и Field, т.к. в таком
@@ -30,23 +39,22 @@ export default class SingleScene extends BaseScene {
         состоянием поля, и игра будет думать что игрок находится не за FragileBrick, а за GrassBrick,
         значит он попадает в область поражения
         */
-		const player = new Player(1, 1, 1, sprites.playerSprites, sprites.bombSprites, sprites.flameSprites);
+		const player = new Player(1, 3, 0, sprites.playerSprites, sprites.bombSprites, sprites.flameSprites);
 		this._players.push(player);
-		this._field = new Field(matr, sprites.fieldSprites, this._firstLayerContext);
+		const numberMatrixField = numberMatrixMapGenerator(20, 20); // TODO пусть поле всегда будет квадратное
+		this._field = new Field(numberMatrixField, sprites.fieldSprites, this.firstLayerContext);
 		// вместо передачи поля через конструктор
 		this._players[0].setField(this._field.bricksInField);
-		this._players[0].setCanvasContext(this._secondLayerContext);
+		this._players[0].setCanvasContext(this.secondLayerContext);
 
-		// Bus.on('single-field', this.updateGameField.bind(this));
-		Bus.on('single-user', this.updateUsers.bind(this));
-		Bus.on('single-setBomb', this.updateBombs.bind(this));
-		Bus.on('single-bomb-explosion', this.updateBombs.bind(this));
-		Bus.on('single-scene-start', this.startLoop.bind(this));
-		GameBus.on('single-player-death', this.updateGame.bind(this));
+		if (!this._registeredActions) {
+			this._controls.init(this.controlsLayer);
+			this._registeredActions = true;
+		}
 	}
 
 	updateUsers (data) {
-		this._players[0].update(this._players[0].xPos + data.dx, this._players[0].yPos + data.dy, this._field.bricksInField);
+		this._players[0].update(this._players[0].xPos + data.dx, this._players[0].yPos + data.dy);
 	}
 
 	updateBombs () {
@@ -67,3 +75,5 @@ export default class SingleScene extends BaseScene {
 		Router.open('/');
 	}
 }
+
+export default new SingleScene();
