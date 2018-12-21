@@ -40,15 +40,15 @@ export default class RoomView extends BaseView {
 		this._currentRoomId = null;
 		this._connection = new Socket();
 		this._navigationController = new NavigationController();
-		Bus.on('done-get-user', this._setCurrentUser.bind(this));
-		Bus.on('done-get-target-room', this._setCurrentRoomId.bind(this));
-		Bus.on('multiplayer-room-pending', this.render.bind(this)); // отрисовываем новых людей
-		Bus.on('multiplayer-room-pending', this._setInitialFieldMatrix.bind(this)); // предварительно перед началом игры создаем карту нужного размера из блоков grass
-		Bus.on('multiplayer-room-pending', this._setPlayersId.bind(this));
-		Bus.on('multiplayer-room-pending', this._setMyId.bind(this));
 
-		Bus.on('multiplayer-room-on', this.renderGame.bind(this));
-		Bus.on('multiplayer-room-off', this.openMenu.bind(this));
+		Bus.on('done-get-target-room', { callbackName: 'RoomView._setCurrentRoomId', callback: this._setCurrentRoomId.bind(this) });
+
+		Bus.on('multiplayer-room-pending', { callbackName: 'RoomView.render', callback: this.render.bind(this) });
+		Bus.on('multiplayer-room-pending', { callbackName: 'RoomView._setInitialFieldMatrix', callback: this._setInitialFieldMatrix.bind(this) });
+		Bus.on('multiplayer-room-pending', { callbackName: 'RoomView._setPlayersId', callback: this._setPlayersId.bind(this) });
+		Bus.on('multiplayer-room-pending', { callbackName: 'RoomView._setMyId', callback: this._setMyId.bind(this) });
+		Bus.on('multiplayer-room-on', { callbackName: 'RoomView.renderGame', callback: this.renderGame.bind(this) });
+		Bus.on('multiplayer-room-off', { callbackName: 'RoomView.openMenu', callback: this.openMenu.bind(this) });
 	}
 
 	_setCurrentUser (user) {
@@ -62,23 +62,24 @@ export default class RoomView extends BaseView {
 	// инициализируем матрицу заданного размера кубиками grassBrick до начала игры
 	_setInitialFieldMatrix (data) {
 		const matrix = makeNumberMatrix(data.field_size.height, data.field_size.width);
-		MultiPlayerScene.initNumberMatrix(matrix);
+		this._scene.initNumberMatrix(matrix);
 	}
 
 	_setMyId (data) {
-		MultiPlayerScene.setMyId(data.players[data.players.length - 1]);
+		this._scene.setMyId(data.players[data.players.length - 1]);
 	}
 
 	// каждый раз когда в комнату заходит игрок, обновляем массив игроков для будущей сцены
 	// массив игроков да начала игры является массивом id каждого игрока
 	_setPlayersId (data) {
-		console.log('connected: ', data);
-		MultiPlayerScene.setPlayersId(data.players);
+		this._scene.setPlayersId(data.players);
 	}
 
 	show () {
+		Bus.on('done-get-user', { callbackName: 'RoomView._setCurrentUser', callback: this._setCurrentUser.bind(this) });
 		Bus.emit('get-user');
 		Bus.emit('get-target-room');
+		this._scene = new MultiPlayerScene();
 		this._connection.setRoomId(this._currentRoomId);
 		this._connection.connectionOpen();
 
@@ -137,8 +138,9 @@ export default class RoomView extends BaseView {
 			super.render(inGameRenderData);
 		}
 		this.showInfo();
-		MultiPlayerScene.init();
-		MultiPlayerScene.startLoop();
+
+		this._scene.init();
+		this._scene.multiPlayerLoop();
 	}
 
 	openMenu () {
@@ -147,12 +149,9 @@ export default class RoomView extends BaseView {
 
 	hide () {
 		super.hide();
-		Bus.totalOff('multiplayer-room-pending');
-		Bus.totalOff('multiplayer-room-on');
-		Bus.totalOff('multiplayer-object-player');
-		Bus.totalOff('multiplayer-object-wall.solid');
-		Bus.totalOff('multiplayer-object-wall.weak');
-
+		Bus.off('done-get-user', 'RoomView._setCurrentUser');
+		this._scene.loop = false;
+		this._scene = null;
 		this._connection.connectionClosed();
 		console.log('connection closed');
 	}
@@ -167,6 +166,7 @@ export default class RoomView extends BaseView {
 
 	registerActions () {
 		const startButton = document.getElementById('start-game');
+		console.log(startButton);
 		startButton.addEventListener('click', () => {
 			this._connection.startGame();
 		});
@@ -175,6 +175,5 @@ export default class RoomView extends BaseView {
 		stopButton.addEventListener('click', () => {
 			this._connection.stopGame();
 		});
-		// this.viewDiv.addEventListener('click', this._navigationController.keyPressedCallback);
 	}
 }

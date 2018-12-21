@@ -5,7 +5,7 @@ import Router from './Router.js';
 export default class Socket {
 	constructor () {
 		this._socket = null;
-		Bus.on('multiplayer-send-message', this.sendMessage.bind(this));
+		Bus.on('multiplayer-send-message', { callbackName: 'Socket.sendMessage', callback: this.sendMessage.bind(this) });
 	}
 
 	setRoomId (roomId) {
@@ -13,7 +13,7 @@ export default class Socket {
 	}
 
 	connectionOpen () {
-		this._socket = new WebSocket(`ws://80.252.155.65:8100/multiplayer/rooms/${this._roomId}/ws`);
+		this._socket = new WebSocket(`wss://bombich.ru/api/multiplayer/rooms/${this._roomId}/ws`);
 		this._socket.onopen = function (event) {
 			console.log('connection started');
 			let tmpMsq = {
@@ -35,36 +35,22 @@ export default class Socket {
 
 	update () {
 		this._socket.onmessage = function (event) {
-		  const response = JSON.parse(event.data);
-		  console.log(response);
-
-		  if (response.type === 'room') {
-			// console.log('room data', response);
+			const response = JSON.parse(event.data);
+			console.log(response);
+			if (response.type === 'room') {
+				// console.log('room data', response);
 				Bus.emit('multiplayer-' + response.type + '-' + response.data.state, response.data);
-		  } else if (response.type === 'object') {
-			// console.log('object data', response);
-			// console.log('action, ', 'multiplayer-' + response.type + '-' + response.data.object_type + '-' + response.data.state);
-
+			} else if (response.type === 'object') {
 				if (response.data.state) {
-			  Bus.emit('multiplayer-' + response.type + '-' + response.data.object_type + '-' + response.data.state, response.data);
+					Bus.emit('multiplayer-' + response.type + '-' + response.data.object_type + '-' + response.data.state, response.data);
 				} else {
-			  Bus.emit('multiplayer-' + response.type + '-' + response.data.object_type, response.data);
+					Bus.emit('multiplayer-' + response.type + '-' + response.data.object_type, response.data);
 				}
-
-			// if (response.data.object_type === 'wall.solid' || response.data.object_type === 'wall.weak') {
-			//   Bus.emit('multiplayer-' + response.type + '-' + response.data.object_type , response.data);
-			// }
-			// else if (response.data.object_type === 'player') {
-			//   Bus.emit('multiplayer-' + response.type + '-' + response.data.object_type + '-' + response.data.state, response.data);
-			// }
-			// console.log('action, ', 'multiplayer-' + response.type + '-' + response.data.object_type + '-' + response.data.state);
-			// console.log(Bus._listeners);
-			// Bus.emit('multiplayer-' + response.type + '-' + response.data.object_type , response.data);
-		  } else if (response.type === 'ticker') {
-			// console.log('ticker data', )
-		  }
+			} else if (response.type === 'ticker') {
+				// console.log('ticker data', )
+			}
 		};
-	  }
+	}
 
 	sendMessage (message) {
 		console.log(message);

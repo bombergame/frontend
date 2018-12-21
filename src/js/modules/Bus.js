@@ -3,16 +3,16 @@ export class Bus {
 		this._listeners = {};
 	}
 
-	on (event, callback) {
+	on (event, callbackData) {
 		if (!this._listeners[event]) {
 			this._listeners[event] = [];
 		}
-		this._listeners[event].push({ callback });
+		this._listeners[event].push(callbackData);
 	}
 
-	off (event, callback) {
+	off (event, callbackName) {
 		this._listeners[event] = this._listeners[event].filter((listener) => {
-			return listener.callback !== callback;
+			return listener.callbackName !== callbackName;
 		});
 	}
 
@@ -21,7 +21,6 @@ export class Bus {
 	}
 
 	emit (event, data) {
-		// console.log('emitted event', event);
 		this._listeners[event].forEach((listener) => {
 			listener.callback(data);
 		});

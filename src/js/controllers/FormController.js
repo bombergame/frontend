@@ -41,23 +41,24 @@ export default class FormController {
 
 	createRoomCallbackSubmit (event) {
 		event.preventDefault();
-		if (this._validator && !this._validator.validate(event.target)) {
+		if (this._validator && !this._validator.validate()) {
 			return;
 		}
 		const size = {};
 
 		let data = Array.from(event.target.elements)
 			.reduce((acc, val) => {
-				if (val.value !== '') {
-					if (val.name !== 'title') {
-						if (val.name === 'height' || val.name === 'width') {
-							size[val.name] = parseInt(val.value);
-						} else {
-							acc[val.name] = parseInt(val.value);
-						}
+				if (val.value === '') {
+					return acc;
+				}
+				if (val.name !== 'title') {
+					if (val.name === 'height' || val.name === 'width') {
+						size[val.name] = parseInt(val.value);
 					} else {
-						acc[val.name] = val.value;
+						acc[val.name] = parseInt(val.value);
 					}
+				} else {
+					acc[val.name] = val.value;
 				}
 				return acc;
 			}, {});
