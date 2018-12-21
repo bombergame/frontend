@@ -26,10 +26,10 @@ export default class MenuView extends BaseView {
 	constructor () {
 		super(menu);
 		this._navigationController = new NavigationController();
-		Bus.on('done-get-user', this.render.bind(this));
 	}
 
 	show () {
+		Bus.on('done-get-user', { callbackName: 'MenuView.render', callback: this.render.bind(this) });
 		Bus.emit('get-user');
 		super.show();
 		this.registerActions();
@@ -41,7 +41,11 @@ export default class MenuView extends BaseView {
 		} else {
 			super.render({ mainMenu: mainMenu, headerValues: notAuthMenuHeader() });
 		}
-		Bus.off('done-get-user', this.render.bind(this));
+	}
+
+	hide () {
+		super.hide();
+		Bus.off('done-get-user', 'MenuView.render');
 	}
 
 	registerActions () {

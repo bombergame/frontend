@@ -17,7 +17,6 @@ export default class LeaderboardView extends BaseView {
 	/**
      * Creates view and registres view events
      */
-
 	constructor () {
 		super(leaderboardTmpl);
 		this._leaderboardModel = new LeaderboardModel(); // handle events
@@ -26,8 +25,6 @@ export default class LeaderboardView extends BaseView {
 		this._currentUser = null;
 
 		this.preload();
-		Bus.on('done-get-user', this._setCurrentUser.bind(this));
-		Bus.on('done-leaderboard-fetch', this.render.bind(this));
 	}
 
 	_setCurrentUser (user) {
@@ -39,6 +36,9 @@ export default class LeaderboardView extends BaseView {
 		 *
 		 */
 	show () {
+		Bus.on('done-get-user', { callbackName: 'LeaderboardView._setCurrentUser', callback: this._setCurrentUser.bind(this) });
+		Bus.on('done-leaderboard-fetch', { callbackName: 'LeaderboardView.render', callback: this.render.bind(this) });
+
 		Bus.emit('get-user');
 		super.show();
 		Bus.emit('leaderboard-load');
@@ -51,6 +51,8 @@ export default class LeaderboardView extends BaseView {
 	hide () {
 		Bus.emit('leaderboard-set-page', 1);
 		super.hide();
+		Bus.off('done-get-user', 'LeaderboardView._setCurrentUser');
+		Bus.off('done-leaderboard-fetch', 'LeaderboardView.render');
 	}
 
 	/**
@@ -86,7 +88,6 @@ export default class LeaderboardView extends BaseView {
 			};
 			super.render(data);
 		}
-		Bus.off('done-get-user', this._setCurrentUser.bind(this));
 		this.registerActions();
 	}
 

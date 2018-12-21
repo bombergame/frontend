@@ -6,24 +6,24 @@ import Controls from '../controls/Controls.js';
 
 import * as sprites from '../SpriteImports.js';
 
-class MultiPlayerScene extends BaseScene {
+export default class MultiPlayerScene extends BaseScene {
 	constructor () {
 		super();
+		this.loop = true;
 		this._registeredActions = false;
 		this._field = null;
 		this.myId = null;
 		this._players = [];
 		this._controls = new Controls('multiplayer'); // режим контролов влиет на тип отправки сообщения в Bus
 		this._initialField = null;
-		Bus.on('multiplayer-object-wall.solid', this.addSteelInField.bind(this));
-		Bus.on('multiplayer-object-wall.weak', this.addFragileInField.bind(this));
-		Bus.on('multiplayer-object-wall.weak-down', this.onBrickExplode.bind(this));
 
-		Bus.on('multiplayer-object-player-alive', this.onUpdateUsers.bind(this));
-		Bus.on('multiplayer-object-player-dead', this.onDeadUsers.bind(this));
-
-		Bus.on('multiplayer-object-bomb-placed', this.onPlantBomb.bind(this));
-		Bus.on('multiplayer-object-bomb-detonated', this.onDetonateBomb.bind(this));
+		Bus.on('multiplayer-object-wall.solid', { callbackName: 'MultiPlayerScene.addSteelInField', callback: this.addSteelInField.bind(this) });
+		Bus.on('multiplayer-object-wall.weak', { callbackName: 'MultiPlayerScene.addFragileInField', callback: this.addFragileInField.bind(this) });
+		Bus.on('multiplayer-object-wall.weak-down', { callbackName: 'MultiPlayerScene.onBrickExplode', callback: this.onBrickExplode.bind(this) });
+		Bus.on('multiplayer-object-player-alive', { callbackName: 'MultiPlayerScene.onUpdateUsers', callback: this.onUpdateUsers.bind(this) });
+		Bus.on('multiplayer-object-player-dead', { callbackName: 'MultiPlayerScene.onDeadUsers', callback: this.onDeadUsers.bind(this) });
+		Bus.on('multiplayer-object-bomb-placed', { callbackName: 'MultiPlayerScene.onPlantBomb', callback: this.onPlantBomb.bind(this) });
+		Bus.on('multiplayer-object-bomb-detonated', { callbackName: 'MultiPlayerScene.onDetonateBomb', callback: this.onDetonateBomb.bind(this) });
 	}
 
 	setPlayersId (players) {
@@ -57,127 +57,69 @@ class MultiPlayerScene extends BaseScene {
 
 	// инициализируем игроков по предварительно сохраненному массиву id каждого игрока
 	addPlayers () {
-		// console.log('players ID', this._playersId);
 		this._playersId.forEach(id => {
-			// console.log('id', id);
 			const player = new Player(id, 0, 0, sprites.playerSprites, sprites.bombSprites, sprites.flameSprites);
 			this._players.push(player);
 		});
-		// console.log('current players', this._players);
 	}
 
-	getCanvasContext () {
-		this.controlsLayer = document.getElementById('canvasControls');
-
-		this.firstLayer = document.getElementById('canvas1');
-		this.firstLayerContext = this.firstLayer.getContext('2d');
-
-		this.secondLayer = document.getElementById('canvas2');
-		this.secondLayerContext = this.secondLayer.getContext('2d');
-
-		this.firstLayer.width = window.innerWidth;
-		this.firstLayer.height = window.innerHeight; //* 0.7;
-
-		this.secondLayer.width = window.innerWidth;
-		this.secondLayer.height = window.innerHeight; //* 0.7;
-
-		this.controlsLayer.width = window.innerWidth;
-		this.controlsLayer.height = window.innerHeight;
-	}
-
-	init () { // (firstLayer, firstLayerContext, secondLayer, secondLayerContext) {
+	init () {
 		this.getCanvasContext();
-		super.init(this.firstLayer, this.firstLayerContext, this.secondLayer, this.secondLayerContext);
-
 		this.addPlayers();
-		this._field = new Field(this._initialField, sprites.fieldSprites, this._firstLayerContext);
+		this._field = new Field(this._initialField, sprites.fieldSprites, this.firstLayerContext);
 		// вместо передачи поля через конструктор
 		this._players.forEach(player => {
 			player.setField(this._field.bricksInField);
-			player.setCanvasContext(this._secondLayerContext);
+			player.setCanvasContext(this.secondLayerContext);
 		});
 
 		if (!this._registeredActions) {
 			this._controls.init(this.controlsLayer);
 			this._registeredActions = true;
 		}
-
-		// Bus.on('multiplayer-object', this.updateField.bind(this));
-		// Bus.on('multiplayer-scene-start', this.startLoop.bind(this));
-
-		// Bus.on('single-field', this.updateGameField.bind(this));
-		// Bus.on('single-user', this.updateUsers.bind(this));
-		// Bus.on('single-setBomb', this.updateBombs.bind(this));
-		// Bus.on('single-bomb-explosion', this.updateBombs.bind(this));
-		// Bus.on('single-scene-start', this.startLoop.bind(this));
-		// GameBus.on('single-player-death', this.updateGame.bind(this));
 	}
 
-	// updateField(data) {
-
-	// 	// console.log('new briks', data);
-	// 	this._field.setBrick(data.transform.position.x, data.transform.position.y, data.object_type);
-	// }
-
 	onUpdateUsers (data) {
-		// console.log(data);
-		// console.log(this._players.length);
 		const playerToUpdate = this._players.filter(player => {
-		  return player._id === data.id;
+			return player._id === data.id;
 		});
-		playerToUpdate[0].update(data.transform.position.x, data.transform.position.y, this._field.bricksInField);
-	  }
+		playerToUpdate[0].update(data.transform.position.x, data.transform.position.y);
+	}
 
-	  onPlantBomb (data) {
+	onPlantBomb (data) {
 		this._players.forEach(player => {
-		  player.addBomb(data.object_id, data.transform.position.x, data.transform.position.y);
+			player.addBomb(data.object_id, data.transform.position.x, data.transform.position.y);
 		});
-	  }
+	}
 
-	  onDetonateBomb (data) {
+	onDetonateBomb (data) {
 		this._players.forEach(player => {
-		  const explodedBomb = player.plantedBombs.filter(b => {
+			const explodedBomb = player.plantedBombs.filter(b => {
 				return b._id === data.object_id;
-		  })[0];
-		  explodedBomb.execFlameAnimation();
-		  player.plantedBombs = player.plantedBombs.filter(b => {
+			})[0];
+			explodedBomb.execFlameAnimation();
+			player.plantedBombs = player.plantedBombs.filter(b => {
 				return b._id !== data.object_id;
-		  });
+			});
 		});
-	  }
+	}
 
 	onDeadUsers (data) {
-		// console.log(data);
-		// console.log(this._players);
 		this._players = this._players.filter(player => {
-		  return player._id !== data.id;
+			return player._id !== data.id;
 		});
 	}
 
 	onBrickExplode (data) {
-		console.log('hi', data);
 		this._field._addGrassBrickInField(data.transform.position.x, data.transform.position.y);
 	}
-	// if (data.id === this.myId) {
-	//   document.removeEventListener('keydown', this.onKeyDown);
 
-	// updateBombs () {
-	// 	this._player.plantBomb();
-	// }
-
-	// updateGame () {
-	// 	Bus.totalOff('single-field');
-	// 	Bus.totalOff('single-user');
-	// 	Bus.totalOff('single-setBomb');
-	// 	Bus.totalOff('single-bomb-explosion');
-	// 	Bus.totalOff('single-scene-start');
-
-	// 	GameBus.totalOff('single-bomb-plant');
-	// 	GameBus.totalOff('single-player-death');
-	// 	GameBus.totalOff('single-bomb-explode');
-
-	// 	Router.open('/');
-	// }
+	multiPlayerLoop () {
+		this.clearSecondLayer();
+		this.renderBombs();
+		this.renderPlayers();
+		if (this.loop) {
+			window.requestAnimationFrame(this.multiPlayerLoop.bind(this));
+		}
+	}
 }
-
-export default new MultiPlayerScene();

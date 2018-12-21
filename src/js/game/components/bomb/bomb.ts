@@ -1,17 +1,8 @@
 import GameBus from '../../GameBus';
-import { IBrick , SteelBrick, FragileBrick} from '../field/field';
+import { SteelBrick, FragileBrick} from '../field/field';
+import { IBrick } from '../interfaces/IBrick';
+import { IExplodeBombData, IEntityPosition } from '../interfaces/IBomb';
 
-export interface IExplodeBombData {
-    bombId : number;
-    xPos : number;
-    yPos : number;
-    explodedArea : Array<Array<IPlantedBombPosition>>
-}
-
-export interface IPlantedBombPosition {
-    xPos : number;
-    yPos : number;
-}
 
 export default class Bomb {
 
@@ -96,7 +87,7 @@ export default class Bomb {
     public explode () : void {
 
         // данные бомбы (координаты, область поражения) на момент взрыва
-        const area : Array<Array<IPlantedBombPosition>> = this.harvestExplosionArea();
+        const area : Array<Array<IEntityPosition>> = this.harvestExplosionArea();
         let data : IExplodeBombData = {
             bombId : this._id,
             xPos : this.xPos,
@@ -125,7 +116,7 @@ export default class Bomb {
         })
     }
 
-    private harvestExplosionArea () : Array<Array<IPlantedBombPosition>> {
+    private harvestExplosionArea () : Array<Array<IEntityPosition>> {
         // область поражения бомбы
         const area = new Array()
         //  по каким направлениям взрывается бомба
@@ -155,17 +146,18 @@ export default class Bomb {
             for (let i = 0; i < this.radius; i++) { // взрываем область соответствующую длине радиуса
                 const expXPos =  this.xPos + vec.dx * i;
                 const expYPos =  this.yPos + vec.dy * i;
-                // console.log(this.gameField[expXPos][expYPos]);
-                if (!(this.gameField[expXPos][expYPos] instanceof SteelBrick)) {
-                    bombedWay.push( // позиция элемента попадающего под взрыв
-                        {
-                            xPos : expXPos,
-                            yPos : expYPos
-                        }
-                    )                
-                }
-                if ((this.gameField[expXPos][expYPos] instanceof SteelBrick) || (this.gameField[expXPos][expYPos] instanceof FragileBrick)) {
-                    break;
+                if ((expXPos >= 0 && expXPos < this.gameField.length) && (expYPos >= 0 && expYPos < this.gameField[0].length)) {
+                    if (!(this.gameField[expXPos][expYPos] instanceof SteelBrick)) {
+                        bombedWay.push( // позиция элемента попадающего под взрыв
+                            {
+                                xPos : expXPos,
+                                yPos : expYPos
+                            }
+                        )                
+                    } 
+                    if ((this.gameField[expXPos][expYPos] instanceof SteelBrick) || (this.gameField[expXPos][expYPos] instanceof FragileBrick)) {
+                        break;
+                    }
                 }
             }
             area.push(bombedWay);
@@ -197,11 +189,10 @@ export default class Bomb {
         const shiftTime : number = time - this._startAnimationTime;
         const currentAnimationTime : number =  shiftTime / this._flameAnimationTime;
         
-        const area : Array<Array<IPlantedBombPosition>> = this.harvestExplosionArea();
+        const area : Array<Array<IEntityPosition>> = this.harvestExplosionArea();
         if (currentAnimationTime < 1) {
             area.forEach( vec => {
                 vec.forEach( pos => {
-                    // console.log(pos)
                     this._ctx.drawImage(this._flameSpritesSrc[this._currentFrame], pos.xPos * this.size, pos.yPos * this.size, this.size, this.size);
                 })
             })

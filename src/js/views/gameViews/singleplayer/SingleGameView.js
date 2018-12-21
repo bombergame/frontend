@@ -1,8 +1,8 @@
 import BaseView from '../../BaseView.js';
 import Bus from '../../../modules/Bus.js';
 import NavigationController from '../../../controllers/NavigationController.js';
-import SingleGame from '../../../game/singleplayer/SingleGame.js';
 import { authMenuHeader, notAuthMenuHeader } from '../../dataTemplates/headerMenuData.js';
+import SingleScene from '../../../game/singleplayer/SingleScene.js';
 
 const canvasTmpl = require('../../templates/gameTemplates/canvas.pug');
 const data = {};
@@ -34,13 +34,14 @@ export default class SingleGameView extends BaseView {
 	constructor () {
 		super(canvasTmpl);
 		this._navigationController = new NavigationController();
-		Bus.on('done-get-user', this.render.bind(this));
 	}
 
 	show () {
+		Bus.on('done-get-user', { callbackName: 'SingleGameView.render', callback: this.render.bind(this) });
 		Bus.emit('get-user');
 		super.show();
 		this.registerActions();
+		this._scene = new SingleScene();
 	}
 
 	render (user) {
@@ -53,9 +54,15 @@ export default class SingleGameView extends BaseView {
 		}
 		this.showInfo();
 
-		SingleGame.init();
-		SingleGame.start();
-		// resize();
+		this._scene.init();
+		this._scene.singlePlayerLoop();
+	}
+
+	hide () {
+		super.hide();
+		this._scene.loop = false; // останавливаем requestAnimationFrame
+		this._scene = null;
+		Bus.off('done-get-user', 'SingleGameView.render');
 	}
 
 	showInfo () {
@@ -67,7 +74,6 @@ export default class SingleGameView extends BaseView {
 	};
 
 	registerActions () {
-		// this.viewDiv.onload(this.showInfo());
-		// this.viewDiv.addEventListener('click', this._navigationController.keyPressedCallback);
+		this.viewDiv.addEventListener('click', this._navigationController.keyPressedCallback);
 	}
 }

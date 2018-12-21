@@ -1,45 +1,59 @@
-export default class BaseScene {
-	constructor () {
-		this._firstLayer = null;
-		this._firstLayerContext = null;
-	}
-	init (firstLayer, firstLayerContext, secondLayer, secondLayerContext) {
-		// console.log('Scene init');
-		this._firstLayer = firstLayer;
-		this._firstLayerContext = firstLayerContext;
+import GameBus from './GameBus.ts';
 
-		this._secondLayer = secondLayer;
-		this._secondLayerContext = secondLayerContext;
+export default class BaseScene {
+	getCanvasContext () {
+		this.controlsLayer = document.getElementById('canvasControls');
+
+		this.firstLayer = document.getElementById('canvas1');
+		this.firstLayerContext = this.firstLayer.getContext('2d');
+
+		this.secondLayer = document.getElementById('canvas2');
+		this.secondLayerContext = this.secondLayer.getContext('2d');
+
+		this.firstLayer.width = window.innerWidth;
+		this.firstLayer.height = window.innerHeight; //* 0.7;
+
+		this.secondLayer.width = window.innerWidth;
+		this.secondLayer.height = window.innerHeight; //* 0.7;
+
+		this.controlsLayer.width = window.innerWidth;
+		this.controlsLayer.height = window.innerHeight;
 	}
 
 	clearFirstLayer () {
-		this._firstLayerContext.clearRect(0, 0, this._firstLayer.width, this._firstLayer.height);
+		this.firstLayerContext.clearRect(0, 0, this.firstLayer.width, this.firstLayer.height);
 	}
 
 	clearSecondLayer () {
-		this._secondLayerContext.clearRect(0, 0, this._secondLayer.width, this._secondLayer.height);
+		this.secondLayerContext.clearRect(0, 0, this.secondLayer.width, this.secondLayer.height);
 	}
 
-	render () {
-		// console.log(this._players); // TODO при взрыве бомбы игрок остается в массиве
-		this._players.forEach(player => {
-			player.plantedBombs.forEach(bomb => {
-				bomb.drawBomb();
-			});
+	checkCollisions () {
+		this._creeps.forEach(creep => {
+			if (creep.xPos === this._players[0].xPos && creep.yPos === this._players[0].yPos) {
+				GameBus.emit('single-player-death');
+			}
 		});
+	}
 
+	renderPlayers () {
 		this._players.forEach(player => {
 			player.drawPlayer();
 		});
 	}
 
-	loopCallback () {
-		this.clearSecondLayer();
-		this.render();
-		window.requestAnimationFrame(this.loopCallback.bind(this));
+	// TODO при взрыве бомбы игрок остается в массиве
+	renderBombs () {
+		this._players.forEach(player => {
+			player.plantedBombs.forEach(bomb => {
+				bomb.drawBomb();
+			});
+		});
 	}
 
-	startLoop () {
-		window.requestAnimationFrame(this.loopCallback.bind(this));
+	renderCreeps () {
+		this._creeps.forEach(creep => {
+			creep.drawCreep();
+		});
 	}
 }
