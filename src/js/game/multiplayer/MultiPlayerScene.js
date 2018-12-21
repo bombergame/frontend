@@ -57,10 +57,12 @@ export default class MultiPlayerScene extends BaseScene {
 
 	// инициализируем игроков по предварительно сохраненному массиву id каждого игрока
 	addPlayers () {
+		// console.log('added players');
 		this._playersId.forEach(id => {
 			const player = new Player(id, 0, 0, sprites.playerSprites, sprites.bombSprites, sprites.flameSprites);
 			this._players.push(player);
 		});
+		console.log(this._players);
 	}
 
 	init () {
@@ -80,6 +82,9 @@ export default class MultiPlayerScene extends BaseScene {
 	}
 
 	onUpdateUsers (data) {
+		// console.log('update data', data);
+		// console.log('PLAYERS', this._players);
+
 		const playerToUpdate = this._players.filter(player => {
 			return player._id === data.id;
 		});
@@ -121,5 +126,17 @@ export default class MultiPlayerScene extends BaseScene {
 		if (this.loop) {
 			window.requestAnimationFrame(this.multiPlayerLoop.bind(this));
 		}
+	}
+
+	clearEvents () {
+		
+		this.loop = false; // останавливаем requestAnimationFrame
+		Bus.totalOff('multiplayer-object-wall.solid');
+		Bus.totalOff('multiplayer-object-wall.weak');
+		Bus.totalOff('multiplayer-object-wall.weak-down');
+		Bus.totalOff('multiplayer-object-player-alive');
+		Bus.totalOff('multiplayer-object-player-dead');
+		Bus.totalOff('multiplayer-object-bomb-placed');
+		Bus.totalOff('multiplayer-object-bomb-detonated');
 	}
 }

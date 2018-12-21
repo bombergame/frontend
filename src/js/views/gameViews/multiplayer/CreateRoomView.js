@@ -78,7 +78,8 @@ export default class CreateRoomView extends BaseView {
 	}
 
 	show () {
-		Bus.on('done-get-user', { callbackName: 'CreateRoomView.render', callback: this.render.bind(this) });
+		Bus.on('done-create-room', { callbackName : 'CreateRoomView.showLink', callback : this.showLink.bind(this)});
+		Bus.on('done-get-user', { callbackName : 'CreateRoomView.render', callback: this.render.bind(this) });
 		Bus.emit('get-user');
 		super.show();
 		this.registerActions();

@@ -77,7 +77,6 @@ export default class ProfileView extends BaseView {
 	}
 
 	registerActions () {
-		this.viewDiv.addEventListener('submit', this.startChat.bind(this));
 		this.viewDiv.addEventListener('click', this._navigationController.keyPressedCallback);
 	}
 }

@@ -87,6 +87,8 @@ export default class RoomView extends BaseView {
 	}
 
 	render (data) {
+		console.log(this._scene)
+		this._template = roomTmpl;
 		// нужно, чтобы выделить текущего пользователя
 		if (!this._meLocked) {
 			this._me = data.players[data.players.length - 1];
@@ -105,6 +107,7 @@ export default class RoomView extends BaseView {
 				href: 'javascript:void(0)',
 				id: 'stop-game'
 			});
+			// console.log(renderData);
 			super.render(renderData);
 		} else {
 			renderData.headerValues = authMenuHeader(this._currentUser.id);
@@ -119,6 +122,7 @@ export default class RoomView extends BaseView {
 	}
 
 	renderGame () {
+		console.log(this._scene)
 		this._template = canvasTmpl;
 		if (!this._currentUser.is_authenticated) {
 			inGameRenderData.headerValues = notAuthMenuHeader();
@@ -150,7 +154,7 @@ export default class RoomView extends BaseView {
 	hide () {
 		super.hide();
 		Bus.off('done-get-user', 'RoomView._setCurrentUser');
-		this._scene.loop = false;
+		this._scene.clearEvents();
 		this._scene = null;
 		this._connection.connectionClosed();
 		console.log('connection closed');
@@ -166,7 +170,6 @@ export default class RoomView extends BaseView {
 
 	registerActions () {
 		const startButton = document.getElementById('start-game');
-		console.log(startButton);
 		startButton.addEventListener('click', () => {
 			this._connection.startGame();
 		});
