@@ -4,22 +4,20 @@ node_js:
 
 jobs:
   include:
-  - stage: build image
-    services:
-    - docker
-    before_script:
-    - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-    script:
-    - docker build -t bombergame/frontend .
-    after_success:
-    - if [ ${TRAVIS_BRANCH} = "master" ]; then
-        docker push bombergame/frontend;
-      fi
-  - state: deploy
-    script: |
-      echo "TRAVIS_BRANCH=$TRAVIS_BRANCH TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST"
-      if [[ ($TRAVIS_BRANCH == master) &&
-            ($TRAVIS_PULL_REQUEST == false) ]] ; then
-        curl -LO --retry 3 https://raw.github.com/mernst/plume-lib/master/bin/trigger-travis.sh
-        sh trigger-travis.sh bombergame service-config $TRAVIS_ACCESS_TOKEN
-      fi
+    - stage: build image
+      services:
+        - docker
+      script:
+        - ./build_image.sh bombergame/frontend
+      after_success:
+        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then
+            ./push_image.sh bombergame/frontend;
+          fi
+
+    - stage: deploy
+      services:
+        - docker
+      script:
+        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then
+            ./deploy.sh;
+          fi
