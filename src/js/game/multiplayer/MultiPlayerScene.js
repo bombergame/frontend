@@ -1,4 +1,4 @@
-import BaseScene from '../BaseScene.js';
+import {BaseScene, canvasRatios} from '../BaseScene.js';
 import Bus from '../../modules/Bus.js';
 import Field from '../components/field/field.ts';
 import Player from '../components/player/player.ts';

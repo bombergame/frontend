@@ -1,4 +1,4 @@
-import BaseScene from '../BaseScene.js';
+import {BaseScene, canvasRatios} from '../BaseScene.js';
 import Bus from '../../modules/Bus.js';
 import Router from '../../modules/Router.js';
 import GameBus from '../GameBus.ts';
@@ -30,8 +30,8 @@ export default class SingleScene extends BaseScene {
 	}
 
 	resizeSprites() {
-		const windowWidth = window.innerWidth;
-		const windowHeight = window.innerHeight;
+		const windowWidth = window.innerWidth * canvasRatios.WIDTH;
+		const windowHeight = window.innerHeight * canvasRatios.HEIGHT;
 
         const matrRowsCount = this.numberMatrixField.length;
 		const matrColumnsCount = this.numberMatrixField[0].length;        
