@@ -6,7 +6,7 @@ import Controls from '../controls/Controls.js';
 
 import * as sprites from '../SpriteImports.js';
 
-export default class MultiPlayerScene extends BaseScene {
+class MultiPlayerScene extends BaseScene {
 	constructor () {
 		super();
 		this.loop = true;
@@ -21,7 +21,7 @@ export default class MultiPlayerScene extends BaseScene {
 		Bus.on('multiplayer-object-wall.solid', { callbackName: 'MultiPlayerScene.addSteelInField', callback: this.addSteelInField.bind(this) });
 		Bus.on('multiplayer-object-wall.weak', { callbackName: 'MultiPlayerScene.addFragileInField', callback: this.addFragileInField.bind(this) });
 		Bus.on('multiplayer-object-wall.weak-down', { callbackName: 'MultiPlayerScene.onBrickExplode', callback: this.onBrickExplode.bind(this) });
-		Bus.on('multiplayer-object-player-alive', { callbackName: 'MultiPlayerScene.onUpdateUsers', callback: this.onUpdateUsers.bind(this) });
+		Bus.on('multiplayer-object-player-alive', { callbackName: 'MultiPlayerScene.onAddPlayer', callback: this.onAddPlayer.bind(this) });
 		Bus.on('multiplayer-object-player-dead', { callbackName: 'MultiPlayerScene.onDeadUsers', callback: this.onDeadUsers.bind(this) });
 		Bus.on('multiplayer-object-bomb-placed', { callbackName: 'MultiPlayerScene.onPlantBomb', callback: this.onPlantBomb.bind(this) });
 		Bus.on('multiplayer-object-bomb-detonated', { callbackName: 'MultiPlayerScene.onDetonateBomb', callback: this.onDetonateBomb.bind(this) });
@@ -54,6 +54,7 @@ export default class MultiPlayerScene extends BaseScene {
 		if (!this.myId) {
 			this.myId = id;
 		}
+		console.log(this.myId);
 	}
 
 	// инициализируем матрицу заданного размера кубиками grassBrick до начала игры
@@ -82,8 +83,8 @@ export default class MultiPlayerScene extends BaseScene {
 	}
 
 	init () {
+		this.loop = true;
 		this.getCanvasContext();
-		this.addPlayers();
 		this._field = new Field(this._initialField, sprites.fieldSprites, this.firstLayerContext);
 		// вместо передачи поля через конструктор
 		this._players.forEach(player => {
@@ -105,6 +106,24 @@ export default class MultiPlayerScene extends BaseScene {
 			return player._id === data.id;
 		});
 		playerToUpdate[0].update(data.transform.position.x, data.transform.position.y);
+	}
+
+	onAddPlayer (data) {
+		if (this._playersId.length) {
+			const player = new Player(data.id, data.transform.position.x, data.transform.position.y, sprites.playerSprites, sprites.bombSprites, sprites.flameSprites);
+			player.setField(this._field.bricksInField);
+			player.setCanvasContext(this.secondLayerContext);
+			this._players.push(player);
+
+			this._playersId = this._playersId.filter( id => {
+				return id !== data.id
+			})
+
+			if (!this._playersId.length) {
+				Bus.totalOff('multiplayer-object-player-alive');
+				Bus.on('multiplayer-object-player-alive', { callbackName: 'MultiPlayerScene.onUpdateUsers', callback: this.onUpdateUsers.bind(this) });
+			}
+		}
 	}
 
 	onPlantBomb (data) {
@@ -129,6 +148,14 @@ export default class MultiPlayerScene extends BaseScene {
 		this._players = this._players.filter(player => {
 			return player._id !== data.id;
 		});
+
+		if (this._players.length === 1) {
+			if (this._players[0]._id === this.myId) {
+				this.showWinInfo();
+			} else {
+				this.showLoseInfo();
+			}
+		}
 	}
 
 	onBrickExplode (data) {
@@ -144,16 +171,15 @@ export default class MultiPlayerScene extends BaseScene {
 		}
 	}
 
-	clearEvents () {
-		
-		this.loop = false; // останавливаем requestAnimationFrame
-		Bus.totalOff('multiplayer-object-wall.solid');
-		Bus.totalOff('multiplayer-object-wall.weak');
-		Bus.totalOff('multiplayer-object-wall.weak-down');
-		Bus.totalOff('multiplayer-object-player-alive');
-		Bus.totalOff('multiplayer-object-player-dead');
-		Bus.totalOff('multiplayer-object-bomb-placed');
-		Bus.totalOff('multiplayer-object-bomb-detonated');
+	stopLoop () {
+		this.loop = false;
+	}
+
+	showLoseInfo () {
+		document.getElementById('dropdown-game-info-lose').style.width = '100%';
+	}
+	showWinInfo () {
+		document.getElementById('dropdown-game-info-win').style.width = '100%';
 	}
 
 	registerActions () {
@@ -162,3 +188,5 @@ export default class MultiPlayerScene extends BaseScene {
 		window.addEventListener('orientationchange', this.resizeSprites.bind(this));
 	}
 }
+
+export default new MultiPlayerScene();

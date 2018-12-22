@@ -3,8 +3,8 @@ extends ../base.pug
 block content
     div(class="main__menu")
         div(class="menu__links")
-            a(href="/createroom" data-href="/createroom") Создать игру
+            a(href="#" data-href="#" id='createRoom') Создать игру
             div
                 input(name="room-number", type="text", placeholder="номер игры", id="room-number-id")
-                a(href="#" data-href="#") Присоединиться к игре
+                a(href="#" data-href="#" id='roomConnect') Присоединиться к игре
                 

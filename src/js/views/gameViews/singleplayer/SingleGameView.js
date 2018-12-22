@@ -5,30 +5,22 @@ import { authMenuHeader, notAuthMenuHeader } from '../../dataTemplates/headerMen
 import SingleScene from '../../../game/singleplayer/SingleScene.js';
 
 const canvasTmpl = require('../../templates/gameTemplates/canvas.pug');
+const preloadTmpl = require('../../templates/preload.pug');
 const data = {};
 
 data.helpValues = [
 	{
-		label: 'Цель игры',
-		data: 'Уничтожить всех врагов'
+		label: 'Попробовать снова',
+		href: '/single'
 	},
 	{
-		label: 'Перемещение персонажа',
-		data: '"wasd" или стрелочки'
-	},
-	{
-		label: 'Поставить бомбу',
-		data: 'Пробел или Enter'
-	},
-	{
-		label: 'Для сенсорных устройств',
-		data: 'джостик слева и кнопка справа'
-	},
-	{
-		label: 'Радиус бомбы',
-		data: '2 клетки'
+		label: 'В главное меню',
+		href: '/'
 	}
 ];
+
+data.resultLose = 'Вы проиграли';
+data.resultWin = 'Вы победили';
 
 export default class SingleGameView extends BaseView {
 	constructor () {
@@ -36,7 +28,16 @@ export default class SingleGameView extends BaseView {
 		this._navigationController = new NavigationController();
 	}
 
+	preload () {
+		const data = {
+			headerValues: notAuthMenuHeader(),
+		};
+		this.viewDiv.innerHTML = '';
+		this.viewDiv.innerHTML = preloadTmpl(data);
+	}
+
 	show () {
+		this.preload();
 		Bus.on('done-get-user', { callbackName: 'SingleGameView.render', callback: this.render.bind(this) });
 		Bus.emit('get-user');
 		super.show();
@@ -52,25 +53,25 @@ export default class SingleGameView extends BaseView {
 			data.headerValues = authMenuHeader(user.id);
 			super.render(data);
 		}
-		this.showInfo();
-
 		this._scene.init();
 		this._scene.singlePlayerLoop();
 	}
 
 	hide () {
+		this.hideLoseInfo();
+		this.hideWinInfo();
 		super.hide();
 		this._scene.loop = false; // останавливаем requestAnimationFrame
 		this._scene = null;
 		Bus.off('done-get-user', 'SingleGameView.render');
 	}
 
-	showInfo () {
-		document.getElementById('dropdown-game-info').style.width = '100%';
+	hideLoseInfo () {
+		document.getElementById('dropdown-game-info-lose').style.width = '0%';
 	};
 
-	hideInfo () {
-		document.getElementById('dropdown-game-info').style.width = '0%';
+	hideWinInfo () {
+		document.getElementById('dropdown-game-info-win').style.width = '0%';
 	};
 
 	registerActions () {

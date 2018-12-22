@@ -3,8 +3,17 @@ import { setCookie, getCookie, deleteCookie } from '../utils.js';
 import Bus from '../modules/Bus.js';
 
 export default class GameModel {
-	static CreateRoom (data) {
-		data.allow_anonymous = true; // костыль - добавить чекбокс в форму
+	static CreateRoom () {
+		const data = {
+			allow_anonymous: true,
+			field_size : {
+				height: 21,
+				width: 21
+			},
+			max_num_players: 4,
+			time_limit: 5,
+			title: "bbb"
+		}
 		const authToken = 'qwerqwer';
 		const gameHeaders = {
 			'Authorization': 'Bearer ' + authToken
@@ -18,7 +27,6 @@ export default class GameModel {
 			})
 
 			.then((data) => {
-				console.log('game data', data);
 				Bus.emit('done-create-room', data);
 			})
 			.catch((err) => {
