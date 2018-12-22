@@ -13,6 +13,7 @@ class MultiPlayerScene extends BaseScene {
 		this._registeredActions = false;
 		this._field = null;
 		this.myId = null;
+		this._spriteSize = null;
 		this._players = [];
 		this._controls = new Controls('multiplayer'); // режим контролов влиет на тип отправки сообщения в Bus
 		this._initialField = null;
@@ -24,6 +25,23 @@ class MultiPlayerScene extends BaseScene {
 		Bus.on('multiplayer-object-player-dead', { callbackName: 'MultiPlayerScene.onDeadUsers', callback: this.onDeadUsers.bind(this) });
 		Bus.on('multiplayer-object-bomb-placed', { callbackName: 'MultiPlayerScene.onPlantBomb', callback: this.onPlantBomb.bind(this) });
 		Bus.on('multiplayer-object-bomb-detonated', { callbackName: 'MultiPlayerScene.onDetonateBomb', callback: this.onDetonateBomb.bind(this) });
+	}
+
+	resizeSprites() {
+		const windowWidth = window.innerWidth;
+		const windowHeight = window.innerHeight;
+
+        const matrRowsCount = this._initialField.length;
+		const matrColumnsCount = this._initialField[0].length;        
+        const width = windowWidth / matrColumnsCount;
+        const height = windowHeight / matrRowsCount;
+
+		this.resizeCanvas();
+		this._spriteSize = Math.min(width, height);
+		this._field.setSpriteSize(this._spriteSize);
+		this._players.forEach((element) => {
+			element.setSpriteSize(this._spriteSize);
+		});
 	}
 
 	setPlayersId (players) {
@@ -73,8 +91,11 @@ class MultiPlayerScene extends BaseScene {
 			player.setCanvasContext(this.secondLayerContext);
 		});
 
+		this.resizeSprites();
+		
 		if (!this._registeredActions) {
 			this._controls.init(this.controlsLayer);
+			this.registerActions();
 			this._registeredActions = true;
 		}
 	}
@@ -143,6 +164,12 @@ class MultiPlayerScene extends BaseScene {
 
 	stopLoop () {
 		this.loop = false;
+	}
+
+	registerActions () {
+		window.addEventListener('load', this.resizeSprites.bind(this));
+		window.addEventListener('resize', this.resizeSprites.bind(this));
+		window.addEventListener('orientationchange', this.resizeSprites.bind(this));
 	}
 }
 

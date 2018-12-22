@@ -1,6 +1,17 @@
 import GameBus from './GameBus.ts';
 
 export default class BaseScene {
+	resizeCanvas() {
+		this.firstLayer.width = window.innerWidth;
+		this.firstLayer.height = window.innerHeight;
+
+		this.secondLayer.width = window.innerWidth;
+		this.secondLayer.height = window.innerHeight;
+
+		this.controlsLayer.width = window.innerWidth;
+		this.controlsLayer.height = window.innerHeight;
+	}
+
 	getCanvasContext () {
 		this.controlsLayer = document.getElementById('canvasControls');
 
@@ -10,14 +21,7 @@ export default class BaseScene {
 		this.secondLayer = document.getElementById('canvas2');
 		this.secondLayerContext = this.secondLayer.getContext('2d');
 
-		this.firstLayer.width = window.innerWidth;
-		this.firstLayer.height = window.innerHeight; //* 0.7;
-
-		this.secondLayer.width = window.innerWidth;
-		this.secondLayer.height = window.innerHeight; //* 0.7;
-
-		this.controlsLayer.width = window.innerWidth;
-		this.controlsLayer.height = window.innerHeight;
+		this.resizeCanvas()
 	}
 
 	clearFirstLayer () {
