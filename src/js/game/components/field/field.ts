@@ -13,11 +13,15 @@ abstract class AbstractBrick implements IBrick{
     public size = 45;
     public abstract xPos: number;
     public abstract yPos: number;
+    public abstract x: number;
+    public abstract y: number;
     public abstract _sprite: any;
     public abstract passable: boolean;
     public abstract destructible: boolean;
     public resize (size : number ) {
         this.size = size;
+        this.xPos = this.x * this.size;
+        this.yPos = this.y * this.size;
     };
     public drawBrick (ctx: any): void {
         ctx.drawImage(this._sprite, this.xPos, this.yPos, this.size, this.size);
@@ -25,13 +29,18 @@ abstract class AbstractBrick implements IBrick{
 }
 
 export class GrassBrick extends AbstractBrick {
-    constructor (x : number, y : number, sprite : any) {
+    constructor (x : number, y : number, size: number, sprite : any) {
         super()
+        this.x = x;
+        this.y = y;
+        this.size = size;
         this.xPos = x * this.size;
         this.yPos = y * this.size;
         this._sprite = sprite;
 
     }
+    public x : number;
+    public y : number;
     public xPos : number;
     public yPos : number;
     public _sprite : HTMLImageElement;
@@ -40,12 +49,18 @@ export class GrassBrick extends AbstractBrick {
 }
 
 export class FragileBrick extends AbstractBrick {
-    constructor (x : number, y : number, sprite : any) {
+    constructor (x : number, y : number, size: number, sprite : any) {
         super()
+        this.x = x;
+        this.y = y;
+        this.size = size;
         this.xPos = x * this.size;
         this.yPos = y * this.size;
         this._sprite = sprite;
+
     }
+    public x : number;
+    public y : number;
     public xPos : number;
     public yPos : number;
     public _sprite : HTMLImageElement;
@@ -54,12 +69,18 @@ export class FragileBrick extends AbstractBrick {
 }
 
 export class SteelBrick extends AbstractBrick {
-    constructor (x : number, y : number, sprite : any) {
+    constructor (x : number, y : number, size: number, sprite : any) {
         super()
+        this.x = x;
+        this.y = y;
+        this.size = size;
         this.xPos = x * this.size;
         this.yPos = y * this.size;
         this._sprite = sprite;
+
     }
+    public x : number;
+    public y : number;
     public xPos : number;
     public yPos : number;
     public _sprite : HTMLImageElement;
@@ -71,6 +92,7 @@ export default class Field {
     private _data : number[][];
     private _xSize : number;
     private _ySize : number;
+    private _spriteSize :number;
     private _sprites : any
     private _ctx : any;
     private bricksInField : IBrick[][] = new Array();
@@ -84,7 +106,7 @@ export default class Field {
         this.transpose(this._data);
         this._xSize = bricksMatrix[0].length;
         this._ySize = bricksMatrix.length;
-        // console.log(this._size);
+        this._spriteSize = 45;
         this._sprites = sprites;
         this._grassSprite = new Image; // TODO убрать в enum
         this._steelSprite = new Image;
@@ -106,6 +128,10 @@ export default class Field {
         }
     }
 
+    public setSpriteSize(size: number) : void {
+        this._spriteSize = size;
+        this.drawField();
+    }
 
     public loadSpritesSrc () : void { 
         this._grassSprite.src = '/' + this._sprites.grassBrick;
@@ -120,13 +146,13 @@ export default class Field {
             for (let j = 0; j < this._xSize; j++) {
 
                 if (this._data[i][j] === BricksTypes.STEEL) {
-                    row.push(new SteelBrick(i, j, this._steelSprite));
+                    row.push(new SteelBrick(i, j, this._spriteSize, this._steelSprite));
                 }
                 if (this._data[i][j] === BricksTypes.FRAGILE) {
-                    row.push(new FragileBrick(i, j, this._fragileSprite));
+                    row.push(new FragileBrick(i, j, this._spriteSize, this._fragileSprite));
                 }
                 if (this._data[i][j] === BricksTypes.GRASS) {
-                    row.push(new GrassBrick(i, j, this._grassSprite));
+                    row.push(new GrassBrick(i, j, this._spriteSize, this._grassSprite));
                 }
             }
             this.bricksInField.push(row)
@@ -141,23 +167,24 @@ export default class Field {
         // console.log('field draw');
         for (const row of this.bricksInField) {
             for (const brick of row) {
+                brick.resize(this._spriteSize);
                 brick.drawBrick(this._ctx);
             }
         }
     }
 
     public _addSteelBrickInField (x : number, y : number) : void {
-        this.bricksInField[x][y] = new SteelBrick(x, y, this._steelSprite);
+        this.bricksInField[x][y] = new SteelBrick(x, y, this._spriteSize, this._steelSprite);
         this.bricksInField[x][y].drawBrick(this._ctx);
     }
 
     public _addFragileBrickInField (x : number, y : number) : void {
-        this.bricksInField[x][y] = new FragileBrick(x, y, this._fragileSprite);
+        this.bricksInField[x][y] = new FragileBrick(x, y, this._spriteSize, this._fragileSprite);
         this.bricksInField[x][y].drawBrick(this._ctx);
     }
 
     public _addGrassBrickInField (x : number, y : number) : void {
-        this.bricksInField[x][y] = new GrassBrick(x, y, this._grassSprite);
+        this.bricksInField[x][y] = new GrassBrick(x, y, this._spriteSize, this._grassSprite);
         this.bricksInField[x][y].drawBrick(this._ctx);
     }
 
@@ -188,7 +215,8 @@ export default class Field {
     private explodeBrick (x : number, y : number) : boolean {
         if (!this.bricksInField[x][y].passable) {
             if (this.bricksInField[x][y].destructible) {
-                this.bricksInField[x][y] = new GrassBrick(x, y, this._grassSprite);
+                this.bricksInField[x][y] = new GrassBrick(x, y, this._spriteSize, this._grassSprite);
+                this.bricksInField[x][y].resize(this._spriteSize);
                 this.bricksInField[x][y].drawBrick(this._ctx);
                 return true
             }

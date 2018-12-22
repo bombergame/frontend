@@ -39,7 +39,7 @@ export default class Creep {
     public _id : number;
     public xPos : number;
     public yPos : number;
-    public size : number; // *
+    public size : number;
     public alive : boolean;
     
     // private prevX : number;
@@ -63,7 +63,9 @@ export default class Creep {
     private _newPosition : IEntityPosition;
     private _startAnimationPosition : IEntityPosition;
 
-
+    public setSpriteSize (size: number) : void{
+        this.size = size;
+    };
 
         // чтобы при каждой смене кадра не указывать новый src, можно загрузить их сразу
     public loadSpritesSrc () : void { 
@@ -71,6 +73,7 @@ export default class Creep {
             const sprite : HTMLImageElement = new Image;
             sprite.onload = () => { 
                 this._endAnimationSprite = this._downSpritesSrc[0];
+                this.drawCreep(); // это хотпродфикс из-за Сафари, ему нужно прям мордой тыкнуть в открисовку
             }
             sprite.src = '/' + s;
             this._downSpritesSrc.push(sprite);

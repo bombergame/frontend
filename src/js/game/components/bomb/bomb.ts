@@ -6,7 +6,7 @@ import { IExplodeBombData, IEntityPosition } from '../interfaces/IBomb';
 
 export default class Bomb {
 
-    constructor (id : number, x : number, y : number, bombSprites : any, flameSprites : any, gameField : IBrick[][], ctx : any) { 
+    constructor (id : number, x : number, y : number, size : number, bombSprites : any, flameSprites : any, gameField : IBrick[][], ctx : any) { 
         this._id = id;
         this.xPos = x;
         this.yPos = y;
@@ -17,7 +17,7 @@ export default class Bomb {
         this._bombSpritesSrc = [];
         this._flameSpritesSrc = [];
         this.loadSpritesSrc();
-        this.size = 45;
+        this.size = size;
         this.radius = 3; // радиус поражение 3 клетки, включая текущую позицию бомбы
         // this._animationPointer = 0;
         this._bombAnimationTime = 2900;
