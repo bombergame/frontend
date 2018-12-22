@@ -43,7 +43,7 @@ export default class Player {
     public _id : number;
     public xPos : number;
     public yPos : number;
-    public size : number; // *
+    public size : number;
     public alive : boolean;
     
     public currentbombsAmount : number; // *
@@ -72,12 +72,17 @@ export default class Player {
     public _ctx : CanvasRenderingContext2D;
     private _newPosition : IEntityPosition;
 
+    public setSpriteSize (size: number) : void{
+        this.size = size;
+    };
+
     // чтобы при каждой смене кадра не указывать новый src, можно загрузить их сразу
     public loadSpritesSrc () : void { 
         this._playerSprites.down.forEach( (s : string) => {
             const sprite : HTMLImageElement = new Image;
             sprite.onload = () => { 
                 this._endAnimationSprite = this._downSpritesSrc[0];
+                this.drawPlayer(); // это хотпродфикс из-за Сафари, ему нужно прям мордой тыкнуть в открисовку
             }
             sprite.src = '/' + s;
             this._downSpritesSrc.push(sprite);
@@ -112,7 +117,7 @@ export default class Player {
     public plantBomb () : void { // *
         if (this.currentbombsAmount) {
             const bombId : number = this.maxBombsAmount - this.currentbombsAmount;
-            const newBomb : Bomb = new Bomb(bombId, this.xPos, this.yPos, this._bombSprites, this._flameSprites, this.gameField, this._ctx);
+            const newBomb : Bomb = new Bomb(bombId, this.xPos, this.yPos, this.size, this._bombSprites, this._flameSprites, this.gameField, this._ctx);
             this.plantedBombs.push(newBomb);
             newBomb.startBombTimer();
             this.currentbombsAmount -= 1;
@@ -127,7 +132,7 @@ export default class Player {
     
     // метод для мультиплеера, так как вся логика на сервере, то ее испольнение на фронте дублировать не нужно    
     public addBomb (id : number,x : number, y : number) : void { // *
-        const newBomb : Bomb = new Bomb(id, x, y, this._bombSprites, this._flameSprites, this.gameField, this._ctx);
+        const newBomb : Bomb = new Bomb(id, x, y, this.size, this._bombSprites, this._flameSprites, this.gameField, this._ctx);
         newBomb.startBombAnimation();
         this.plantedBombs.push(newBomb);
     }
@@ -163,7 +168,7 @@ export default class Player {
             this._newPosition.yPos = y;
             this._currentFrame = 0;
             this._startAnimationTime = performance.now();
-            this._animationPointer = this.chooseAnimationPointer();   
+            this._animationPointer = this.chooseAnimationPointer();
         }
     }
 
@@ -322,6 +327,7 @@ export default class Player {
     private chooseAnimationPointer () : number {
         let  pointer : number = 0;
 
+        
         if (this.xPos > this._newPosition.xPos && this.yPos === this._newPosition.yPos) {
             pointer = 4;
         }

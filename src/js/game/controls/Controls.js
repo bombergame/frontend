@@ -1,6 +1,8 @@
 import Bus from '../../modules/Bus.js';
 import Vector from './Vector.js';
-import getDirectionFromTouch from '../utils/math.js';
+import {getDirectionFromTouch, distace} from '../utils/mathTools.js';
+
+const distanceThreshold = 20;
 
 export default class Controls {
 	constructor (mode) { // TODO mode: single/multi -> messages changes
@@ -42,6 +44,8 @@ export default class Controls {
 
 		this._touches = []; // array of touch vectors
 
+		this.touchable = 'createTouch' in document,
+
 		// вот именно эти две переменные отвечают за адекватную отправку команд
 		this._moveInterval = 250;
 		this.time = 0;
@@ -68,7 +72,7 @@ export default class Controls {
 	init (canvas) {
 		this._canvas = canvas;
 		this._context = this._canvas.getContext('2d');
-		if (!this._registeredActions) {
+		if (!this._registeredActions) { // this.touchable
 			// TODO window -> document
 			document.addEventListener('touchstart', this.onTouchStart.bind(this));
 			document.addEventListener('touchmove', this.onTouchMove.bind(this));
@@ -145,12 +149,14 @@ export default class Controls {
 
 	onTouchMove (e) {
 		// Prevent the browser from doing its default thing (scroll, zoom)
-		// e.preventDefault();
+		e.preventDefault();
 		for (let i = 0; i < e.changedTouches.length; i++) {
 			let touch = e.changedTouches[i];
 			if (this.leftTouchID === touch.identifier) {
 				this._leftTouchPos.reset(touch.clientX, touch.clientY);
-				this.direction = getDirectionFromTouch(this._leftTouchStartPos, this._leftTouchPos);
+				if (distace(this._leftTouchStartPos, this._leftTouchPos) > distanceThreshold){
+					this.direction = getDirectionFromTouch(this._leftTouchStartPos, this._leftTouchPos);
+				}
 				break;
 			}
 		}

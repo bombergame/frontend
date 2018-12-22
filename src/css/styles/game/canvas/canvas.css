@@ -1,3 +1,13 @@
+canvas {
+    -webkit-touch-callout: none;
+    -webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */
+	-webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
+}
+
+.sceneLayer {
+    text-align: center;
+}
+
 #canvas1 {
     position: absolute;
     z-index: 1;

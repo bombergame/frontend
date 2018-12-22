@@ -14,10 +14,8 @@ import SingleGameView from './views/gameViews/singleplayer/SingleGameView.js';
 import ProfileView from './views/ProfileView.js';
 import ChangeView from './views/ChangeView.js';
 import LeaderboardView from './views/LeaderboardView.js';
-// import MultiPlayerView from './views/gameViews/multiplayer/MultiPlayerView.js'
 
 import MultiplayerMenuView from './views/gameViews/multiplayer/MultiplayerMenuView.js';
-import CreateRoomView from './views/gameViews/multiplayer/CreateRoomView.js';
 import RoomView from './views/gameViews/multiplayer/RoomView.js';
 
 import ProfileController from './controllers/ProfileController.js';
@@ -41,7 +39,7 @@ Bus.on('unsuccess-signin', { callbackName: 'SigninView.showUnsuccessMessage', ca
 Bus.on('submit-data-signup', { callbackName: 'AuthModel.Register', callback: (data) => { AuthModel.Register(data); } });
 Bus.on('submit-data-signin', { callbackName: 'AuthModel.Signin', callback: (data) => { AuthModel.Signin(data); } });
 Bus.on('submit-data-change', { callbackName: 'ProfileController._makeSettingsChanges', callback: (data) => { ProfileController._makeSettingsChanges(data); } });
-Bus.on('submit-data-createroom', { callbackName: 'GameModel.CreateRoom', callback: (data) => { GameModel.CreateRoom(data); } });
+Bus.on('submit-data-createroom', { callbackName: 'GameModel.CreateRoom', callback: () => { GameModel.CreateRoom(); } });
 Bus.on('user-signout', { callbackName: 'AuthModel.Signout', callback: () => { AuthModel.Signout(); } });
 Bus.on('wipe-views', { callbackName: 'wipe',
 	callback: () => {
@@ -61,10 +59,8 @@ function main () {
 		['/change', ChangeView],
 		['/single', SingleGameView],
 		['/multiplayerMenu', MultiplayerMenuView],
-		['/createroom', CreateRoomView],
 		['/room', RoomView],
 		['/leaderboard', LeaderboardView]
-		// ['/multiplayer', MultiPlayerView]
 	].forEach((route) => { Router.register(route[0], route[1]); });
 
 	Router.open(window.location.pathname);

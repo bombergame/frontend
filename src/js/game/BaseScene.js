@@ -1,6 +1,25 @@
 import GameBus from './GameBus.ts';
 
-export default class BaseScene {
+export const canvasRatios = {
+	WIDTH: 0.8,
+	HEIGHT: 1,
+}
+
+export class BaseScene {
+	resizeCanvas() {
+		const width = window.innerWidth * canvasRatios.WIDTH;
+		const height = window.innerHeight * canvasRatios.HEIGHT;
+
+		this.firstLayer.width = width;
+		this.firstLayer.height = height;
+
+		this.secondLayer.width = width;
+		this.secondLayer.height = height;
+
+		this.controlsLayer.width = window.innerWidth;  // тут 100 % чтобы контролы были на весь экран
+		this.controlsLayer.height = window.innerHeight;
+	}
+
 	getCanvasContext () {
 		this.controlsLayer = document.getElementById('canvasControls');
 
@@ -10,14 +29,7 @@ export default class BaseScene {
 		this.secondLayer = document.getElementById('canvas2');
 		this.secondLayerContext = this.secondLayer.getContext('2d');
 
-		this.firstLayer.width = window.innerWidth;
-		this.firstLayer.height = window.innerHeight; //* 0.7;
-
-		this.secondLayer.width = window.innerWidth;
-		this.secondLayer.height = window.innerHeight; //* 0.7;
-
-		this.controlsLayer.width = window.innerWidth;
-		this.controlsLayer.height = window.innerHeight;
+		this.resizeCanvas()
 	}
 
 	clearFirstLayer () {

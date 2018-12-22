@@ -1,4 +1,4 @@
-export default function getDirectionFromTouch (vectorStart, vectorEnd) {
+export function getDirectionFromTouch (vectorStart, vectorEnd) {
 	const x = vectorEnd._x - vectorStart._x;
 	const y = vectorEnd._y - vectorStart._y;
 	const toDegrees = 180 / Math.PI;
@@ -18,4 +18,10 @@ export default function getDirectionFromTouch (vectorStart, vectorEnd) {
 	}
 
 	return direction;
+}
+
+export function distace(vectorStart, vectorEnd){
+	const a = vectorStart._x - vectorEnd._x;
+	const b = vectorStart._y - vectorEnd._y;
+	return Math.sqrt( a*a + b*b );
 }

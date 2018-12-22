@@ -36,9 +36,7 @@ export default class Socket {
 	update () {
 		this._socket.onmessage = function (event) {
 			const response = JSON.parse(event.data);
-			console.log(response);
 			if (response.type === 'room') {
-				// console.log('room data', response);
 				Bus.emit('multiplayer-' + response.type + '-' + response.data.state, response.data);
 			} else if (response.type === 'object') {
 				if (response.data.state) {
@@ -47,7 +45,6 @@ export default class Socket {
 					Bus.emit('multiplayer-' + response.type + '-' + response.data.object_type, response.data);
 				}
 			} else if (response.type === 'ticker') {
-				// console.log('ticker data', )
 			}
 		};
 	}
