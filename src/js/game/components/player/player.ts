@@ -163,7 +163,7 @@ export default class Player {
             this._newPosition.yPos = y;
             this._currentFrame = 0;
             this._startAnimationTime = performance.now();
-            this._animationPointer = this.chooseAnimationPointer();   
+            this._animationPointer = this.chooseAnimationPointer();
         }
     }
 
@@ -322,6 +322,7 @@ export default class Player {
     private chooseAnimationPointer () : number {
         let  pointer : number = 0;
 
+        
         if (this.xPos > this._newPosition.xPos && this.yPos === this._newPosition.yPos) {
             pointer = 4;
         }
