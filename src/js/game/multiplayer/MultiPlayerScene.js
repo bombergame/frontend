@@ -54,6 +54,7 @@ class MultiPlayerScene extends BaseScene {
 		if (!this.myId) {
 			this.myId = id;
 		}
+		console.log(this.myId);
 	}
 
 	// инициализируем матрицу заданного размера кубиками grassBrick до начала игры
@@ -147,6 +148,14 @@ class MultiPlayerScene extends BaseScene {
 		this._players = this._players.filter(player => {
 			return player._id !== data.id;
 		});
+
+		if (this._players.length === 1) {
+			if (this._players[0]._id === this.myId) {
+				this.showWinInfo();
+			} else {
+				this.showLoseInfo();
+			}
+		}
 	}
 
 	onBrickExplode (data) {
@@ -164,6 +173,13 @@ class MultiPlayerScene extends BaseScene {
 
 	stopLoop () {
 		this.loop = false;
+	}
+
+	showLoseInfo () {
+		document.getElementById('dropdown-game-info-lose').style.width = '100%';
+	}
+	showWinInfo () {
+		document.getElementById('dropdown-game-info-win').style.width = '100%';
 	}
 
 	registerActions () {

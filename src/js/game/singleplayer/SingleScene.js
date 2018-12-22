@@ -62,7 +62,7 @@ export default class SingleScene extends BaseScene {
 	}
 	init () {
 		this.getCanvasContext();
-		this.numberMatrixField = numberMatrixMapGenerator(20, 20); // TODO пусть поле всегда будет квадратное
+		this.numberMatrixField = numberMatrixMapGenerator(21, 21); // TODO пусть поле всегда будет квадратное
 		
 		/*
         здесь важен порядок создания объектов Player и Field, т.к. в таком
@@ -114,6 +114,10 @@ export default class SingleScene extends BaseScene {
 		this._creeps = this._creeps.filter(creep => {
 			return creep._id !== data.creepId;
 		});
+
+		if (!this._creeps.length) {
+			this.updateWinGame();
+		}
 	}
 
 	singlePlayerLoop () {
@@ -129,7 +133,9 @@ export default class SingleScene extends BaseScene {
 	}
 
 	updateGame () {
+
 		this.loop = false; // останавливаем requestAnimationFrame
+		document.getElementById('canvas2').setAttribute('hidden', 'hidden');
 		Bus.totalOff('single-field');
 		Bus.totalOff('single-user');
 		Bus.totalOff('single-setBomb');
@@ -141,7 +147,31 @@ export default class SingleScene extends BaseScene {
 		GameBus.totalOff('single-bomb-explode');
 		GameBus.totalOff('single-creep-death');
 
-		Router.open('/');
+		this.showLoseInfo();
+	}
+
+	updateWinGame () {
+		this.loop = false; // останавливаем requestAnimationFrame
+		document.getElementById('canvas2').setAttribute('hidden', 'hidden');
+		Bus.totalOff('single-field');
+		Bus.totalOff('single-user');
+		Bus.totalOff('single-setBomb');
+		Bus.totalOff('single-bomb-explosion');
+		Bus.totalOff('single-scene-start');
+
+		GameBus.totalOff('single-bomb-plant');
+		GameBus.totalOff('single-player-death');
+		GameBus.totalOff('single-bomb-explode');
+		GameBus.totalOff('single-creep-death');
+
+		this.showWinInfo();
+	}
+
+	showLoseInfo () {
+		document.getElementById('dropdown-game-info-lose').style.width = '100%';
+	}
+	showWinInfo () {
+		document.getElementById('dropdown-game-info-win').style.width = '100%';
 	}
 
 	registerActions () {

@@ -8,9 +8,15 @@ block game-content
     div(id="secondLayer")
         canvas(id="canvas2")
     
-    div(id="dropdown-game-info" class="dropdown__overlay")
-        p(class="dropdown__closebtn" onclick="closeDropdown('dropdown-game-info')") &times;
+    div(id="dropdown-game-info-lose" class="dropdown__overlay")
         div(class="dropdown__overlay-content")
+            p(class="dropdown__content-highlight")= resultLose
             for val in helpValues
-                a(class="dropdown__content")= val.label
-                a(class="dropdown__content-highlight")= val.data
+                a(class="dropdown__content-highlight" href=val.href data-href=val.href)= val.label
+    
+    div(id="dropdown-game-info-win" class="dropdown__overlay")
+        div(class="dropdown__overlay-content")
+            p(class="dropdown__content-highlight")= resultWin
+            for val in helpValues
+                a(class="dropdown__content-highlight" href=val.href data-href=val.href)= val.label
+    

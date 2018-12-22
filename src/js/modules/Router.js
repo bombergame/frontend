@@ -112,6 +112,7 @@ class Router {
      * Allows to redraw open view
      */
 	rerender () {
+		this._routes[this._currentRoute].viewEntity.hide();
 		this._routes[this._currentRoute].viewEntity.show();
 	}
 

@@ -9,32 +9,25 @@ import Router from '../../../modules/Router.js';
 
 const roomTmpl = require('../../templates/gameTemplates/room.pug');
 const canvasTmpl = require('../../templates/gameTemplates/canvas.pug');
+const preloadTmpl = require('../../templates/preload.pug');
+
 
 const inGameRenderData = {};
 
 inGameRenderData.helpValues = [
 	{
-		label: 'Цель игры',
-		data: 'Уничтожить всех врагов'
-	},
-	{
-		label: 'Перемещение персонажа',
-		data: '"wasd" или стрелочки'
-	},
-	{
-		label: 'Поставить бомбу',
-		data: '"f"'
-	},
-	{
-		label: 'Радиус бомбы',
-		data: '2 клетки'
+		label: 'В главное меню',
+		href: '/'
 	}
 ];
+
+inGameRenderData.resultLose = 'Вы проиграли';
+inGameRenderData.resultWin = 'Вы победили';
 
 export default class RoomView extends BaseView {
 	constructor () {
 		super(roomTmpl);
-		this._currentUser = null;
+		this._currentUser = {is_authenticated : false};
 		this._me = null;
 		this._meLocked = false;
 		this._currentRoomId = null;
@@ -49,7 +42,6 @@ export default class RoomView extends BaseView {
 		Bus.on('multiplayer-room-pending', { callbackName: 'RoomView._setMyId', callback: this._setMyId.bind(this) });
 		Bus.on('multiplayer-room-on', { callbackName: 'RoomView.renderGame', callback: this.renderGame.bind(this) });
 		Bus.on('multiplayer-room-off', { callbackName: 'RoomView.openMenu', callback: this.openMenu.bind(this) });
-		// console.log(Bus._listeners);
 	}
 
 	_setCurrentUser (user) {
@@ -76,7 +68,16 @@ export default class RoomView extends BaseView {
 		MultiPlayerScene.setPlayersId(data.players);
 	}
 
+	preload () {
+		const data = {
+			headerValues: notAuthMenuHeader(),
+		};
+		this.viewDiv.innerHTML = '';
+		this.viewDiv.innerHTML = preloadTmpl(data);
+	}
+
 	show () {
+		this.preload();
 		Bus.on('done-get-user', { callbackName: 'RoomView._setCurrentUser', callback: this._setCurrentUser.bind(this) });
 		Bus.emit('get-user');
 		Bus.emit('get-target-room');
@@ -138,7 +139,6 @@ export default class RoomView extends BaseView {
 			});
 			super.render(inGameRenderData);
 		}
-		this.showInfo();
 
 		MultiPlayerScene.init();
 		MultiPlayerScene.multiPlayerLoop();
@@ -156,12 +156,12 @@ export default class RoomView extends BaseView {
 		console.log('connection closed');
 	}
 
-	showInfo () {
-		document.getElementById('dropdown-game-info').style.height = '100%';
+	hideLoseInfo () {
+		document.getElementById('dropdown-game-info-lose').style.width = '0%';
 	};
 
-	hideInfo () {
-		document.getElementById('dropdown-game-info').style.height = '0%';
+	hideWinInfo () {
+		document.getElementById('dropdown-game-info-win').style.width = '0%';
 	};
 
 	registerActions () {
