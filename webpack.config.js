@@ -6,7 +6,8 @@ module.exports = {
 		ignored: /node_modules/
 	},
 	entry: {
-		main: './src/js/script.js'
+		main: './src/engine/js/script.js',
+		// css: './src/styles/css',
 	},
 
 	output: {
