@@ -1,0 +1,20 @@
+@import '../common/_colors/_colors.scss';
+@import '../common/_fonts/fonts.scss';
+
+html,
+body,
+ul,
+ol {
+  margin:  0%;
+  padding: 0%;
+  background-color: $background-color--violet; 
+  font-family: $font-family;
+  color: $text-color--common;
+}
+
+@media (min-width: 320px) {
+	html { font-size: calc( 3.125vw + 10px ); } 
+}
+@media (min-width: 960px) {
+  html { font-size: 40px; } 
+}

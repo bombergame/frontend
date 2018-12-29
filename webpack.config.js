@@ -1,7 +1,9 @@
 const path = require('path');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const Fiber = require('fibers');
 
 module.exports = {
-	watch: false,
+	watch: true,
 	watchOptions: {
 		ignored: /node_modules/
 	},
@@ -20,9 +22,38 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.css$/,
-				use: ['style-loader', 'css-loader']
+				test: /\.scss$/,
+				use: [{
+					loader: "style-loader"
+				}, {
+					loader: "css-loader"
+				}, {
+					loader: "sass-loader",
+					options: {
+						implementation: require("sass"),
+						fiber: Fiber
+					}
+				}]
 			},
+			
+			// {
+			// 	test: /\.css$/,
+			// 	use: [{
+			// 		loader: ['style-loader', 'sass-loader'],
+			// 		options: { 
+			// 			name: '../css/[name].[ext]'
+			// 		} 
+			// 	}],
+				
+			// },
+			
+			// {
+			// 	test: /\.scss$/,
+			// 	use: ExtractTextPlugin.extract({
+			// 	  fallback: 'style-loader',
+			// 	  use: ['css-loader', 'sass-loader']
+			// 	})
+			// },
 			{
                 test: /\.(eot|svg|ttf|woff|woff2)$/,
                 loader: 'file?name=public/fonts/[name].[ext]'
@@ -58,4 +89,9 @@ module.exports = {
 
 		]
 	},
+	plugins: [ 
+	  new ExtractTextPlugin(
+		{filename: '/css/style.css'}
+	  ),
+	]
 };

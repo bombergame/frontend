@@ -1,0 +1,25 @@
+@import '../common/_colors/_colors.scss';
+@import '../common/_shadows/_shadows.scss';
+@import '../common/_paddings/_paddings.scss';
+@import '../common/_margins/_margins.scss';
+@import '../common/_fonts/fonts.scss';
+
+.header {
+    overflow: hidden;
+    position: absolute;
+    z-index: 4;
+    top: 0;
+}
+
+.header__title{
+    color: $text-color--highlight;
+    display: block;
+    text-align: center;
+    padding: 14px 14px;
+    text-decoration: none;
+
+    :hover{
+        background-color: $background-color--black-dark;
+    }
+}
+

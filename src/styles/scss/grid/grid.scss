@@ -1,0 +1,20 @@
+.header{grid-area: header;}
+
+.main {
+    grid-area: main;
+    margin: 5%;
+}
+
+.left {grid-area: left;}
+
+.right {grid-area: right;}
+
+.game-field{grid-area: game-field;}
+
+.grid-container {
+    display: grid;
+    grid-template-areas:
+      'header header header'
+      'game-field game-field game-field'
+      'left main right';  
+  }

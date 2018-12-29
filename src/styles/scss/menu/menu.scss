@@ -1,0 +1,30 @@
+@import '../common/_colors/_colors.scss';
+@import '../common/_shadows/_shadows.scss';
+@import '../common/_paddings/_paddings.scss';
+@import '../common/_margins/_margins.scss';
+
+
+.menu__links {
+    display: block;
+    box-shadow: $box-shadow;
+    z-index: 1;
+
+    a {
+        color: $text-color--highlight;
+        padding: $padding--common;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+
+        :hover{
+            background-color: $background-color--violet-lite;
+            opacity: 0.9;
+        }
+    }
+}
+
+.nav_link{
+    color: $text-color--highlight;
+    margin: $margin__common;
+    text-decoration: none;
+}

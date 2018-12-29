@@ -1,0 +1,29 @@
+canvas {
+    -webkit-touch-callout: none;
+    -webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */
+	-webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
+}
+
+.sceneLayer {
+    text-align: center;
+}
+
+#canvas1 {
+    position: absolute;
+    z-index: 1;
+    background-color: transparent;
+}
+
+#canvas2 {
+    position: absolute;
+    z-index: 2;
+    background-color: transparent;
+    -webkit-background-color: transparent;
+}
+
+#canvasControls {
+    position: absolute;
+    z-index: 3;
+    background-color: transparent;
+    -webkit-background-color: transparent;
+}

@@ -1,0 +1,39 @@
+@import '../common/_colors/_colors.scss';
+@import '../common/_shadows/_shadows.scss';
+@import '../common/_paddings/_paddings.scss';
+@import '../common/_margins/_margins.scss';
+@import '../common/_fonts/fonts.scss';
+
+input{
+    font-family: $font-family;
+    font-size: 20px;
+
+    [type=text], [type=number], input[type=password], input[type=email], select {
+        width: 100%;
+        padding: $padding--common;
+        margin: 8px 0;
+        display: block;
+        border: 1px solid $input-color--common;
+        border-radius: 4px;
+        box-sizing: border-box;
+    };
+
+    [type=number] {
+        padding: 12px 20px;
+    };
+
+    [type=submit]{
+        width: 100%;
+        background-color: $background-color--highlight;
+        color: $text-color--common;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+
+        :hover{
+            background-color: $background-color--highlight-low;
+        }
+    };
+}

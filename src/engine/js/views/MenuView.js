@@ -1,8 +1,7 @@
 import BaseView from './BaseView.js';
 import Bus from '../modules/Bus.js';
 import NavigationController from '../controllers/NavigationController.js';
-import '../../../styles/css/dropdown/dropdown.js';
-import '../../../styles/css/input/slider.js';
+import '../../../styles/scss/dropdown/dropdown.js';
 import { authMenuHeader, notAuthMenuHeader } from '../views/dataTemplates/headerMenuData.js';
 
 const menu = require('./templates/menu.pug');
